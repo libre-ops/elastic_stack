@@ -1,0 +1,82 @@
+# Ansible managed
+
+# Reference: https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-reference-yml.html
+
+{{ es_filebeat_options | to_nice_yaml | default(omit) }}
+
+{% if es_filebeat_output == 'elasticsearch' %}
+output.elasticsearch:
+  hosts: "{{ es_elasticsearch_servers }}"
+  protocol: "{{ es_protocol }}"
+  username: "elastic"
+  password: "{{ es_elasticuser_pass }}"
+{% endif %}
+
+{% if es_production_mode and es_filebeat_output == 'elasticsearch' %}
+output.elasticsearch.ssl:
+  enabled: true
+  verification_mode: none
+  client_authentication: required
+  certificate_authorities: ["{{ es_keys_remote_path }}/filebeat/{{ es_elastic_ca }}"]
+  certificate: "{{ es_keys_remote_path }}/filebeat/{{ es_elastic_crt }}"
+  key: "{{ es_keys_remote_path }}/filebeat/{{ es_elastic_key }}"
+  key_passphrase: "{{ es_certificate_passphrase | default(omit) }}"
+{% endif %}
+
+{% if es_filebeat_output == 'logstash' %}
+output.logstash:
+  hosts: "{{ es_logstash_servers }}"
+  protocol: "{{ es_protocol }}"
+  username: "elastic"
+  password: "{{ es_elasticuser_pass }}"
+{% endif %}
+
+{% if es_production_mode and es_filebeat_output == 'logstash' %}
+output.logstash.ssl:
+  enabled: true
+  verification_mode: none
+  client_authentication: required
+  certificate_authorities: ["{{ es_keys_remote_path }}/filebeat/{{ es_elastic_ca }}"]
+  certificate: "{{ es_keys_remote_path }}/filebeat/{{ es_elastic_crt }}"
+  key: "{{ es_keys_remote_path }}/filebeat/{{ es_elastic_key }}"
+  key_passphrase: "{{ es_certificate_passphrase | default(omit) }}"
+{% endif %}
+
+{% if es_beat_shipper_configs is defined %}
+{{ es_beat_shipper_configs | to_nice_yaml | default(omit) }}
+{% endif %}
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+setup.template.settings:
+  index.number_of_shards: 1
+
+setup.dashboards.enabled: true
+
+setup.kibana:
+  host: "{{ es_kibana_server }}"
+  protocol: "{{ es_protocol }}"
+  username: "elastic"
+  password: "{{ es_elasticuser_pass }}"
+  ssl:
+    enabled: true
+    verification_mode: none
+    client_authentication: required
+    certificate_authorities: ["{{ es_keys_remote_path }}/filebeat/{{ es_elastic_ca }}"]
+    certificate: "{{ es_keys_remote_path }}/filebeat/{{ es_elastic_crt }}"
+    key: "{{ es_keys_remote_path }}/filebeat/{{ es_elastic_key }}"
+    key_passphrase: "{{ es_certificate_passphrase | default(omit) }}"
+
+processors:
+  - add_host_metadata: ~
+
+{% if es_client_monitoring %}
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch:
+{% endif %}
+
+{% if es_filebeat_modules is defined %}
+{{ es_filebeat_modules | to_nice_yaml | default(omit) }}
+{% endif %}

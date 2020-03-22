@@ -1,0 +1,41 @@
+---
+
+es_single_node: true
+es_production_mode: false
+es_protocol: http
+es_kibana_protocol: "{{ es_protocol }}"
+es_client_monitoring: false
+es_disable_commercial_plugins: true
+
+es_elasticsearch_host: localhost
+es_elasticsearch_port: 9200
+
+es_kibana_host: 0.0.0.0
+es_kibana_port: 5601
+
+es_logstash_host: localhost
+es_logstash_port: 5044
+
+es_apm_host: localhost
+es_apm_port: 8200
+
+es_elasticsearch_servers: "{{ es_protocol }}://{{ es_elasticsearch_host }}:{{ es_elasticsearch_port }}"
+es_kibana_server: "{{ es_kibana_protocol }}://{{ es_kibana_host }}:{{ es_kibana_port }}"
+es_logstash_servers: "{{ es_protocol }}://{{ es_logstash_host }}:{{ es_logstash_port }}"
+es_apm_server: "{{ es_protocol }}://{{ es_apm_host }}:{{ es_apm_port }}"
+
+es_bin_path: /usr/share/elasticsearch/bin
+es_log_path: /var/log/elasticsearch
+es_lib_path: /var/lib/elasticsearch
+
+logstash_listen_port_beats: 5044
+logstash_elasticsearch_hosts: "{{ es_protocol }}://localhost:9200"
+logstash_local_syslog_path: /var/log/syslog
+logstash_monitor_local_syslog: true
+logstash_dir: /usr/share/logstash
+logstash_ssl_dir: /etc/pki/logstash
+logstash_ssl_certificate_file: ""
+logstash_ssl_key_file: ""
+logstash_enabled_on_boot: true
+logstash_install_plugins:
+  - logstash-input-beats

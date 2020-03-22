@@ -1,0 +1,61 @@
+# Ansible managed
+
+# Reference: https://www.elastic.co/guide/en/apm/server/current/configuring-howto-apm-server.html
+
+apm-server:
+  host: "0.0.0.0:{{ es_apm_port }}" #"{{ es_apm_server }}"
+  secret_token: "{{ es_apm_secret_token }}"
+
+{% if es_production_mode %}
+apm-server.ssl:
+  enabled: true
+  verification_mode: none
+  certificate_authorities: ["{{ es_keys_remote_path }}/apm-server/{{ es_elastic_ca }}"]
+  certificate: "{{ es_keys_remote_path }}/apm-server/{{ es_elastic_crt }}"
+  key: "{{ es_keys_remote_path }}/apm-server/{{ es_elastic_key }}"
+  key_passphrase: "{{ es_certificate_passphrase | default(omit) }}"
+{% endif %}
+
+{% if es_apmserver_output == 'elasticsearch' %}
+output.elasticsearch:
+  hosts: "{{ es_elasticsearch_servers }}"
+  protocol: "{{ es_protocol }}"
+  username: "elastic"
+  password: "{{ es_elasticuser_pass }}"
+#  username: "apm_system"
+#  password: "{{ es_builtin_users['apm_system'] }}"
+{% endif %}
+
+{% if es_production_mode and es_apmserver_output == 'elasticsearch' %}
+output.elasticsearch.ssl:
+  enabled: true
+  verification_mode: none
+  certificate_authorities: ["{{ es_keys_remote_path }}/apm-server/{{ es_elastic_ca }}"]
+  certificate: "{{ es_keys_remote_path }}/apm-server/{{ es_elastic_crt }}"
+  key: "{{ es_keys_remote_path }}/apm-server/{{ es_elastic_key }}"
+  key_passphrase: "{{ es_certificate_passphrase | default(omit) }}"
+{% endif %}
+
+{% if es_apmserver_output == 'logstash' %}
+output.logstash:
+  hosts: "{{ es_logstash_servers }}"
+  protocol: "{{ es_protocol }}"
+  username: "elastic"
+  password: "{{ es_elasticuser_pass }}"
+{% endif %}
+
+{% if es_production_mode and es_apmserver_output == 'logstash' %}
+output.logstash.ssl:
+  enabled: true
+  verification_mode: none
+  client_authentication: required
+  certificate_authorities: ["{{ es_keys_remote_path }}/apm-server/{{ es_elastic_ca }}"]
+  certificate: "{{ es_keys_remote_path }}/apm-server/{{ es_elastic_crt }}"
+  key: "{{ es_keys_remote_path }}/apm-server/{{ es_elastic_key }}"
+  key_passphrase: "{{ es_certificate_passphrase | default(omit) }}"
+{% endif %}
+
+{% if es_client_monitoring %}
+xpack.monitoring.enabled: false
+xpack.monitoring.elasticsearch:
+{% endif %}

@@ -1,0 +1,46 @@
+# Ansible managed
+
+# Reference: https://www.elastic.co/guide/en/elasticsearch/reference/current/settings.html
+
+{% if es_elasticsearch_configs is defined %}
+{{ es_elasticsearch_configs | to_nice_yaml | default(omit) }}
+{% endif %}
+
+network.host: "{{ es_elasticsearch_host }}"
+http.port: "{{ es_elasticsearch_port }}"
+
+path.data: "{{ es_lib_path }}"
+path.logs: "{{ es_log_path }}"
+
+{% if es_single_node %}
+discovery.type: single-node
+{% endif %}
+
+{% if es_production_mode %}
+xpack.security.enabled: true
+
+xpack.security.transport.ssl:
+  enabled: true
+  verification_mode: certificate
+  client_authentication: required
+  key: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_key }}"
+  certificate: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_crt }}"
+  certificate_authorities: ["{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_ca }}"]
+  key_passphrase: "{{ es_certificate_passphrase | default(omit) }}"
+
+xpack.security.http.ssl:
+  enabled: true
+  verification_mode: certificate
+  client_authentication: required
+  key: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_key }}"
+  certificate: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_crt }}"
+  certificate_authorities: ["{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_ca }}"]
+  key_passphrase: "{{ es_certificate_passphrase | default(omit) }}"
+
+xpack.security.authc.realms:
+  native.realm1:
+    order: 0
+  pki.realm2:
+    order: 1
+    certificate_authorities: ["{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_ca }}"]
+{% endif %}

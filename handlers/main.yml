@@ -1,0 +1,37 @@
+---
+
+- name: restart elasticsearch
+  service:
+    name: elasticsearch
+    state: restarted
+  become: yes
+
+- name: restart kibana
+  service:
+    name: kibana
+    state: restarted
+  become: yes
+
+- name: restart logstash
+  service:
+    name: logstash
+    state: restarted
+  become: yes
+
+- name: restart apm-server
+  service:
+    name: apm-server
+    state: restarted
+  become: yes
+
+- name: restart filebeat
+  service:
+    name: filebeat
+    state: restarted
+  become: yes
+
+- name: restart metricbeat
+  service:
+    name: metricbeat
+    state: restarted
+  become: yes

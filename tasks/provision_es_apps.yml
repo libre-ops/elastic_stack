@@ -1,0 +1,112 @@
+---
+
+- name: create {{ es_app.group }} group
+  group:
+    name: "{{ es_app.group }}"
+  become: yes
+
+- name: create {{ es_app.user }} user
+  user:
+    name: "{{ es_app.user }}"
+    group: "{{ es_app.group }}"
+    groups: "{{ es_app.groups | default(es_app.group) }}"
+    system: "{{ es_app.user_sytem | default('yes') }}"
+  become: yes
+
+- name: ensure keys path exists
+  file:
+    dest: "{{ es_keys_remote_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  become: yes
+  when: es_app.certificates is defined
+
+- name: ensure app keys path exists
+  file:
+    dest: "{{ es_keys_remote_path }}/{{ es_app.name }}"
+    state: directory
+    owner: "{{ es_app.user }}"
+    group: "{{ es_app.group }}"
+    mode: 0755
+  become: yes
+  when: es_app.certificates is defined
+
+- name: provision certificates
+  copy:
+    src: "{{ es_keys_local_path }}/{{ certificate_file }}"
+    dest: "{{ es_keys_remote_path }}/{{ es_app.name }}/{{ certificate_file }}"
+    mode: 0640
+    owner: "{{ es_app.user }}"
+    group: "{{ es_app.group }}"
+  loop: "{{ es_app.certificates }}"
+  loop_control:
+    loop_var: certificate_file
+  become: yes
+  when: es_app.certificates is defined
+
+- name: grant java applet read permission for keys
+  template:
+    src: java.policy.j2
+    dest: "/home/{{ es_app.name }}/.java.policy"
+    mode: 0640
+    owner: "{{ es_app.user }}"
+    group: "{{ es_app.group }}"
+  become: yes
+  when: es_app.certificates is defined
+
+- name: install {{ es_app.name }}
+  package:
+    name: "{{ es_app.package }}"
+  become: yes
+  register: es_installed
+
+- name: check bootstrap password
+  shell: "{{ es_bin_path }}/elasticsearch-keystore list"
+  become: yes
+  changed_when: false
+  register: es_keystore_list
+  when: es_app.elastic_bootstrap is defined
+
+- name: set ephemeral bootstrap password for initial security configuration
+  shell: "echo {{ es_bootstrap_password }} | {{ es_bin_path }}/elasticsearch-keystore add bootstrap.password -s"
+  become: yes
+  when: es_app.elastic_bootstrap is defined and es_keystore_list.stdout.find('bootstrap.password') == -1
+
+- name: add {{ es_app.name }} configuration
+  template:
+    src: "{{ es_app.app_config_template }}"
+    dest: "{{ es_app.app_config_path }}"
+    owner: root
+    group: "{{ es_app.service_group }}"
+    mode: 0640
+  become: yes
+  notify: "restart {{ es_app.service_name }}"
+  register: app_configured
+  when: es_app.app_config_template is defined
+
+- name: add additional {{ es_app.name }} configs
+  template:
+    src: "{{ es_extra_config.src }}"
+    dest: "{{ es_extra_config.dest }}"
+    owner: root
+    group: "{{ es_app.service_group }}"
+    mode: 0640
+  become: yes
+  notify: "restart {{ es_app.service_name }}"
+  loop: "{{ es_app.extra_configs }}"
+  loop_control:
+    loop_var: es_extra_config
+  when: es_app.extra_configs is defined
+
+- name: flush handlers before proceeding
+  meta: flush_handlers
+
+- name: enable and start {{ es_app.service_name }} service
+  service:
+    name: "{{ es_app.service_name }}"
+    state: "{{ es_app.service_state | default('started') }}"
+    enabled: "{{ es_app.service_enabled | default('yes') }}"
+  become: yes
+  when: es_app.no_service is undefined

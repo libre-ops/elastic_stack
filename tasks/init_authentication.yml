@@ -1,0 +1,84 @@
+---
+
+- name: wait for elastic api to become available (this can take a while...)
+  uri:
+    url: "{{ es_protocol }}://localhost:{{ es_elasticsearch_port }}"
+    method: GET
+    user: elastic
+    password: "{{ es_bootstrap_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+    status_code: 200
+    client_cert: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_crt }}"
+    client_key: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_key }}"
+  become: yes
+  register: elastic_api_connection
+  until: elastic_api_connection is not failed
+  retries: 20
+  delay: 6
+
+- name: configure authentication for built-in app users
+  uri:
+    url: "{{ es_protocol }}://localhost:{{ es_elasticsearch_port }}/_security/user/{{ builtin_user.key }}/_password"
+    method: PUT
+    user: elastic
+    password: "{{ es_bootstrap_password }}"
+    force_basic_auth: yes
+    body:
+      password: "{{ builtin_user.value }}"
+    body_format: json
+    validate_certs: no
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+    client_cert: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_crt }}"
+    client_key: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_key }}"
+  become: yes
+  loop: "{{ es_builtin_users | dict2items }}"
+  loop_control:
+    loop_var: builtin_user
+
+- name: create default admin user
+  uri:
+    url: "{{ es_protocol }}://localhost:{{ es_elasticsearch_port }}/_security/user/{{ es_default_admin_username }}"
+    method: POST
+    user: elastic
+    password: "{{ es_bootstrap_password }}"
+    force_basic_auth: yes
+    body: "{{ es_default_admin_details }}"
+    body_format: json
+    validate_certs: no
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+    client_cert: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_crt }}"
+    client_key: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_key }}"
+  become: yes
+
+- name: configure authentication for built-in app superuser
+  uri:
+    url: "{{ es_protocol }}://localhost:{{ es_elasticsearch_port }}/_security/user/elastic/_password"
+    method: PUT
+    user: elastic
+    password: "{{ es_bootstrap_password }}"
+    force_basic_auth: yes
+    body:
+      password: "{{ es_elasticuser_pass }}"
+    body_format: json
+    validate_certs: no
+    status_code: 200
+    headers:
+      Content-Type: "application/json"
+    client_cert: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_crt }}"
+    client_key: "{{ es_keys_remote_path }}/elasticsearch/{{ es_elastic_key }}"
+  become: yes
+  register: elasticuser_configured
+  notify:
+    - restart elasticsearch
+    - restart kibana
+
+- name: mark installation as bootstrapped
+  file:
+    dest: /home/elasticsearch/bootstrapped
+    state: touch
+  become: yes

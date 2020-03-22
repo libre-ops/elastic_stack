@@ -1,0 +1,58 @@
+---
+
+es_filebeat_output: elasticsearch
+es_metricbeat_output: elasticsearch
+es_apmserver_output: elasticsearch
+
+es_beat_shipper_fields:
+  env: "{{ es_shipper_env | default('development') }}"
+
+es_beat_shipper_configs:
+  name: "{{ es_shipper_name | default(omit) }}"
+  tags: "{{ es_shipper_tags | default(omit) }}"
+  fields: "{{ es_beat_shipper_fields | default(omit) }}"
+
+es_filebeat_options:
+  filebeat.inputs:
+    - type: log
+      enabled: true
+      paths:
+        - /var/log/*.log
+      exclude_files: ['.gz$']
+
+es_filebeat_modules:
+  filebeat.modules:
+    - module: system
+      syslog:
+        enabled: true
+        var.paths: ["/var/log/syslog"]
+
+es_metricbeat_modules:
+  metricbeat.modules:
+    - module: system
+      period: 10s
+      metricsets:
+        - cpu
+        - load
+        - memory
+        - network
+        - process
+        - process_summary
+        - socket_summary
+      process.include_top_n:
+        by_cpu: 5
+        by_memory: 5
+
+    - module: system
+      period: 1m
+      metricsets:
+        - filesystem
+        - fsstat
+      processors:
+        - drop_event.when.regexp:
+            system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'
+
+    - module: system
+      period: 15m
+      metricsets:
+        - uptime

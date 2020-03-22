@@ -1,0 +1,5 @@
+grant {
+  permission java.io.FilePermission "/home/{{ es_app.user }}/", "read";
+  permission java.io.FilePermission "{{ es_keys_remote_path }}/{{ es_app.user }}/", "read";
+  permission java.io.FilePermission "{{ es_keys_remote_path }}/{{ es_app.user }}/*", "read";
+};

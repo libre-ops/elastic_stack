@@ -1,0 +1,16 @@
+---
+
+- name: stop services
+  service:
+    name: "{{ es_remove_app }}"
+    state: stopped
+  become: yes
+  loop: "{{ es_remove }}"
+  loop_control:
+    loop_var: es_remove_app
+
+- name: remove apps
+  apt:
+    name: "{{ es_remove | list }}"
+    state: absent
+  become: yes

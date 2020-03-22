@@ -1,0 +1,26 @@
+---
+
+- include_tasks: pre_install.yml
+  when: es_remove is undefined
+
+- include_tasks: provision_es_apps.yml
+  vars:
+    es_app: "{{ es_apps[ app_to_install ] }}"
+  loop: "{{ es_install }}"
+  loop_control:
+    loop_var: app_to_install
+  when: es_remove is undefined
+
+- name: check authentication has been configured
+  stat:
+    path: /home/elasticsearch/bootstrapped
+  become: yes
+  register: es_bootstrapped
+  when: es_production_mode and 'elasticsearch' in es_install and es_remove is undefined
+
+- name: configure authentication
+  include_tasks: init_authentication.yml
+  when: es_production_mode and 'elasticsearch' in es_install and not es_bootstrapped.stat.exists and es_remove is undefined
+
+- include_tasks: remove_es_apps.yml
+  when: es_remove is defined

@@ -1,0 +1,5 @@
+# Ansible managed
+
+{% if es_custom_config is defined %}
+{{ es_custom_config | to_nice_yaml | default(omit) }}
+{% endif %}

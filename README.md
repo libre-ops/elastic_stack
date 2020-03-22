@@ -1,0 +1,10 @@
+Elastic Stack Ansible role
+==========================
+
+This is an Ansible role for provisioning a self-hosted **ElasticStack server** (ElasticSearch, Kibana, etc), and provisioning the corresponding **log/metric shippers** on clients (MetricBeat, FileBeat, etc).
+
+Alpha version notice: everything except Logstash is working and thoroughly tested. Logtash isn't actually needed for simple use cases.
+
+For security in production, use of **CA certificates** is recommended. See role: https://github.com/libre-ops/ca_keys
+
+ElasticStack requires OpenJDK. See role: https://github.com/libre-ops/open_jdk

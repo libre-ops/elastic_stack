@@ -1,0 +1,41 @@
+# Ansible managed
+
+# Reference: https://www.elastic.co/guide/en/kibana/current/settings.html
+
+{% if es_kibana_configs is defined %}
+{{ es_kibana_configs | to_nice_yaml | default(omit) }}
+{% endif %}
+
+{% if es_disable_commercial_plugins %}
+xpack.ml.enabled: false
+xpack.graph.enabled: false
+xpack.watcher.enabled: false
+{% endif %}
+
+server.host: "{{ es_kibana_host }}"
+server.port: "{{ es_kibana_port }}"
+
+elasticsearch.hosts: "{{ es_elasticsearch_servers }}"
+
+# We *should* be able to remove these if using PKI...?
+elasticsearch.username: "kibana"
+elasticsearch.password: "{{ es_builtin_users['kibana'] }}"
+
+{% if es_production_mode %}
+xpack.security.enabled: true
+
+elasticsearch.ssl:
+  alwaysPresentCertificate: true
+  verificationMode: certificate
+  certificateAuthorities: ["{{ es_keys_remote_path }}/kibana/{{ es_kibana_ca }}"]
+  certificate: "{{ es_keys_remote_path }}/kibana/{{ es_kibana_crt }}"
+  key: "{{ es_keys_remote_path }}/kibana/{{ es_kibana_key }}"
+  keyPassphrase: "{{ es_certificate_passphrase | default(omit) }}"
+
+server.ssl:
+  enabled: true
+  certificateAuthorities: ["{{ es_keys_remote_path }}/kibana/{{ es_kibana_ca }}"]
+  certificate: "{{ es_keys_remote_path }}/kibana/{{ es_kibana_crt }}"
+  key: "{{ es_keys_remote_path }}/kibana/{{ es_kibana_key }}"
+  keyPassphrase: "{{ es_certificate_passphrase | default(omit) }}"
+{% endif %}

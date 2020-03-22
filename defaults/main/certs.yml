@@ -1,0 +1,18 @@
+---
+
+es_keys_local_path: "../keys/servers"
+es_keys_remote_path: "/etc/pki"
+
+es_elastic_crt: elastic.crt
+es_elastic_key: elastic.key
+es_elastic_ca: CA.crt
+
+es_kibana_crt: kibana.crt
+es_kibana_key: kibana.key
+es_kibana_ca: CA.crt
+
+es_elastic_certificates: ["{{ es_elastic_crt }}", "{{ es_elastic_key }}", "{{ es_elastic_ca }}"]
+es_kibana_certificates: ["{{ es_kibana_crt }}", "{{ es_kibana_key }}", "{{ es_kibana_ca }}"]
+es_logstash_certificates: "{{ es_elastic_certificates }}"
+es_apmserver_certificates: "{{ es_elastic_certificates }}"
+es_beats_certificates: "{{ es_elastic_certificates }}"

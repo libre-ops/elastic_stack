@@ -1,0 +1,81 @@
+---
+
+es_dependencies: apt-transport-https
+es_open_source: false
+
+es_package: '7.x'
+es_repo: "deb https://artifacts.elastic.co/packages/{% if es_open_source %}oss-{% endif %}{{ es_package }}/apt stable main"
+
+es_install:
+  - elasticsearch
+  - kibana
+  - filebeat
+  - metricbeat
+
+es_apps:
+  elasticsearch:
+    name: elasticsearch
+    package: "elasticsearch{% if es_open_source %}-oss{% endif %}"
+    user: elasticsearch
+    group: elasticsearch
+    service_name: elasticsearch
+    service_group: elasticsearch
+    app_config_template: elasticsearch.yml.j2
+    app_config_path: /etc/elasticsearch/elasticsearch.yml
+    certificates: "{{ es_elastic_certificates }}"
+    elastic_bootstrap: true
+
+  kibana:
+    name: kibana
+    package: "kibana{% if es_open_source %}-oss{% endif %}"
+    user: kibana
+    group: kibana
+    service_name: kibana
+    service_group: kibana
+    app_config_template: kibana.yml.j2
+    app_config_path: /etc/kibana/kibana.yml
+    certificates: "{{ es_kibana_certificates }}"
+
+  logstash:
+    name: logstash
+    package: logstash
+    user: logstash
+    group: logstash
+    groups: logstash,adm
+    service_name: logstash
+    service_group: logstash
+    certificates: "{{ es_logstash_certificates }}"
+
+  apm-server:
+    name: apm-server
+    package: apm-server
+    user: apm-server
+    group: apm-server
+    service_name: apm-server
+    service_group: apm-server
+    app_config_template: apm-server.yml.j2
+    app_config_path: /etc/apm-server/apm-server.yml
+    certificates: "{{ es_apmserver_certificates }}"
+
+  filebeat:
+    name: filebeat
+    package: filebeat
+    user: filebeat
+    group: filebeat
+    groups: filebeat,adm
+    service_name: filebeat
+    service_group: filebeat
+    app_config_template: filebeat.yml.j2
+    app_config_path: /etc/filebeat/filebeat.yml
+    certificates: "{{ es_beats_certificates }}"
+
+  metricbeat:
+    name: metricbeat
+    package: metricbeat
+    user: metricbeat
+    group: metricbeat
+    service_name: metricbeat
+    service_group: metricbeat
+    app_config_template: metricbeat.yml.j2
+    app_config_path: /etc/metricbeat/metricbeat.yml
+    certificates: "{{ es_beats_certificates }}"
