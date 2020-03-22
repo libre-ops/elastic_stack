@@ -3,7 +3,7 @@
 # Reference: https://www.elastic.co/guide/en/apm/server/current/configuring-howto-apm-server.html
 
 apm-server:
-  host: "0.0.0.0:{{ es_apm_port }}" #"{{ es_apm_server }}"
+  host: "{{ es_apm_server }}"
   secret_token: "{{ es_apm_secret_token }}"
 
 {% if es_production_mode %}

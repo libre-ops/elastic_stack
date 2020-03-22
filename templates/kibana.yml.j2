@@ -12,7 +12,7 @@ xpack.graph.enabled: false
 xpack.watcher.enabled: false
 {% endif %}
 
-server.host: "{{ es_kibana_host }}"
+server.host: "{{ es_kibana_local_address }}"
 server.port: "{{ es_kibana_port }}"
 
 elasticsearch.hosts: "{{ es_elasticsearch_servers }}"

@@ -6,7 +6,7 @@
 {{ es_elasticsearch_configs | to_nice_yaml | default(omit) }}
 {% endif %}
 
-network.host: "{{ es_elasticsearch_host }}"
+network.host: "{{ es_elasticsearch_local_address }}"
 http.port: "{{ es_elasticsearch_port }}"
 
 path.data: "{{ es_lib_path }}"
