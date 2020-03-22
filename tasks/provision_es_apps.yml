@@ -21,7 +21,7 @@
     group: root
     mode: 0755
   become: yes
-  when: es_app.certificates is defined
+  when: es_production_mode and es_app.certificates is defined
 
 - name: ensure app keys path exists
   file:
@@ -31,7 +31,7 @@
     group: "{{ es_app.group }}"
     mode: 0755
   become: yes
-  when: es_app.certificates is defined
+  when: es_production_mode and es_app.certificates is defined
 
 - name: provision certificates
   copy:
@@ -44,7 +44,7 @@
   loop_control:
     loop_var: certificate_file
   become: yes
-  when: es_app.certificates is defined
+  when: es_production_mode and es_app.certificates is defined
 
 - name: grant java applet read permission for keys
   template:
@@ -54,7 +54,7 @@
     owner: "{{ es_app.user }}"
     group: "{{ es_app.group }}"
   become: yes
-  when: es_app.certificates is defined
+  when: es_production_mode and es_app.certificates is defined
 
 - name: install {{ es_app.name }}
   package:
