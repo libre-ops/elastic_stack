@@ -1,0 +1,29 @@
+---
+
+- name: Provision clients
+  hosts: clients
+  remote_user: "{{ user }}"
+
+  pre_tasks:
+    - name: uninstall openjdk
+      apt:
+        name: "openjdk-11-jdk"
+        update_cache: yes
+        cache_valid_time: 3600
+        state: absent
+      become: yes
+
+    - name: remove openjdk repo
+      apt_repository:
+        repo: ppa:openjdk-r/ppa
+        state: absent
+      become: yes
+
+  roles:
+    - role: libre_ops.elastic_stack
+      vars:
+        es_remove:
+          - filebeat
+          - metricbeat
+      tags: elasticstack
+

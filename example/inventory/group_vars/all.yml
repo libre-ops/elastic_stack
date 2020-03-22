@@ -1,0 +1,8 @@
+---
+
+### These secrets are used by both server and clients.
+### Always use Ansible Vault: https://docs.ansible.com/ansible/latest/user_guide/vault.html
+
+es_elasticuser_pass: super-secure-password
+es_certificate_passphrase: super-secure-password
+es_apm_secret_token: super-secure-password

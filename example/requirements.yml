@@ -1,0 +1,12 @@
+---
+
+- src: libre_ops.ca_keys
+  version: 1.0.0
+
+- src: libre_ops.open_jdk
+  version: 1.0.0
+
+- src: https://github.com/libre-ops/elastic_stack
+  name: libre_ops.elastic_stack
+  version: master
+  scm: git

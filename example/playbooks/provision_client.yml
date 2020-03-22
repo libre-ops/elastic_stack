@@ -1,0 +1,11 @@
+---
+
+- name: Provision client
+  hosts: clients
+  remote_user: "{{ user }}"
+
+  roles:
+    - role: libre_ops.open_jdk
+
+    - role: libre_ops.elastic_stack
+      tags: elasticstack

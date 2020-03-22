@@ -1,0 +1,62 @@
+---
+
+### Install ElasticSearch and Kibana, and shippers as well (in local testing container or VM); configure for development
+
+es_install:
+  - elasticsearch
+  - kibana
+  - filebeat
+  - metricbeat
+
+es_elasticsearch_domain: 0.0.0.0
+es_kibana_domain: 0.0.0.0
+
+es_production_mode: false
+es_protocol: http
+
+### Shipper configs; adds some metadata to exported logs/metrics
+
+es_shipper_name: local-machine-monitoring-itself
+es_shipper_env: development
+es_shipper_tags: dev-container
+
+### Select and configure FileBeat modules to use. See: https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-reference-yml.html
+
+es_filebeat_modules:
+  filebeat.modules:
+    - module: system
+      syslog:
+        enabled: true
+        var.paths: ["/var/log/syslog"]
+
+### Select and configure MetricBeat modules to use. See: https://www.elastic.co/guide/en/beats/metricbeat/index.html
+
+es_metricbeat_modules:
+  metricbeat.modules:
+    - module: system
+      period: 10s
+      metricsets:
+        - cpu
+        - load
+        - memory
+        - network
+        - process
+        - process_summary
+        - socket_summary
+      process.include_top_n:
+        by_cpu: 5
+        by_memory: 5
+
+    - module: system
+      period: 1m
+      metricsets:
+        - filesystem
+        - fsstat
+      processors:
+        - drop_event.when.regexp:
+            system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'
+
+    - module: system
+      period: 15m
+      metricsets:
+        - uptime
