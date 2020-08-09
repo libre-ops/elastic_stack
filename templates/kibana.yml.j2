@@ -6,6 +6,10 @@
 {{ es_kibana_configs | to_nice_yaml | default(omit) }}
 {% endif %}
 
+logging:
+  dest: "{{ es_kibana_log_path }}"
+  quiet: true
+
 {% if es_disable_commercial_plugins %}
 xpack.ml.enabled: false
 xpack.graph.enabled: false
