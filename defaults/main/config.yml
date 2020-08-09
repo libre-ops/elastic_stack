@@ -26,6 +26,7 @@ es_apm_server: "{{ es_protocol }}://{{ es_apm_domain | default(es_apm_local_addr
 
 es_bin_path: /usr/share/elasticsearch/bin
 es_log_path: /var/log/elasticsearch
+es_kibana_log_path: /home/kibana/log
 es_lib_path: /var/lib/elasticsearch
 
 logstash_listen_port_beats: 5044
