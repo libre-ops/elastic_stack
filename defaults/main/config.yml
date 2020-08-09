@@ -22,7 +22,7 @@ es_apm_port: 8200
 es_elasticsearch_servers: "{{ es_protocol }}://{{ es_elasticsearch_domain | default(es_elasticsearch_local_address) }}:{{ es_elasticsearch_port }}"
 es_kibana_server: "{{ es_kibana_protocol }}://{{ es_kibana_domain | default(es_kibana_local_address) }}:{{ es_kibana_port }}"
 es_logstash_servers: "{{ es_protocol }}://{{ es_logstash_domain | default(es_logstash_local_address) }}:{{ es_logstash_port }}"
-es_apm_server: "{{ es_protocol }}://{{ es_apm_domain | default(es_apm_local_address) }}:{{ es_apm_port }}"
+es_apm_server: "{{ es_apm_domain | default(es_apm_local_address) }}:{{ es_apm_port }}"
 
 es_bin_path: /usr/share/elasticsearch/bin
 es_log_path: /var/log/elasticsearch
