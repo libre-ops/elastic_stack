@@ -10,6 +10,7 @@ apm-server:
 apm-server.ssl:
   enabled: true
   verification_mode: none
+  client_authentication: optional
   certificate_authorities: ["{{ es_keys_remote_path }}/apm-server/{{ es_elastic_ca }}"]
   certificate: "{{ es_keys_remote_path }}/apm-server/{{ es_elastic_crt }}"
   key: "{{ es_keys_remote_path }}/apm-server/{{ es_elastic_key }}"
