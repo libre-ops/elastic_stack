@@ -35,3 +35,9 @@
     name: metricbeat
     state: restarted
   become: yes
+
+- name: restart auditbeat
+  service:
+    name: auditbeat
+    state: restarted
+  become: yes
