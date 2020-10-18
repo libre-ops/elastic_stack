@@ -3,6 +3,7 @@
 es_filebeat_output: elasticsearch
 es_metricbeat_output: elasticsearch
 es_apmserver_output: elasticsearch
+es_auditbeat_output: elasticsearch
 
 es_beat_shipper_fields:
   env: "{{ es_shipper_env | default('development') }}"
@@ -56,3 +57,24 @@ es_metricbeat_modules:
       period: 15m
       metricsets:
         - uptime
+
+es_auditbeat_options:
+  auditbeat.modules:
+    - module: file_integrity
+      paths:
+        - /bin
+        - /usr/bin
+        - /sbin
+        - /usr/sbin
+        - /etc
+
+    - module: system
+      datasets:
+        - host
+        - login
+        - process
+        - user
+      state.period: 3h
+      user.detect_password_changes: true
+      login.wtmp_file_pattern: /var/log/wtmp*
+      login.btmp_file_pattern: /var/log/btmp*

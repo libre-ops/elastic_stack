@@ -79,3 +79,14 @@ es_apps:
     app_config_template: metricbeat.yml.j2
     app_config_path: /etc/metricbeat/metricbeat.yml
     certificates: "{{ es_beats_certificates }}"
+
+  auditbeat:
+    name: auditbeat
+    package: auditbeat
+    user: auditbeat
+    group: auditbeat
+    service_name: auditbeat
+    service_group: auditbeat
+    app_config_template: auditbeat.yml.j2
+    app_config_path: /etc/auditbeat/auditbeat.yml
+    certificates: "{{ es_beats_certificates }}"
